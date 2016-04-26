@@ -18,6 +18,14 @@ const itemTypes = {
   }
 };
 
+const logResult = result => {
+  if (browser.extension.lastError) {
+    return console.error(browser.extension.lastError);
+  }
+  
+  return console.log(result);
+};
+
 const createDownloadCallback = itemType => {
   console.log(itemType);
 };
@@ -33,23 +41,24 @@ const createMenuProperty = itemType => ({
     }
     
     const downloadOptions = {
-      url,
-      conflictAction: 'prompt',
-      saveAs: false
+      url
+      //TODO: need to specify for non-image contexts to workaround firefox name bug
+      //TODO: document this bug and report on https://discourse.mozilla-community.org/c/add-ons/development
+      // filename: '' 
+      // url,
+      // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
+      // saveAs: false //not implemented yet in firefox, defaults to false
     };
     
-    browser.downloads.download(downloadOptions);
+    browser.downloads.download(
+      downloadOptions, 
+      logResult
+    );
   }
 });
 
-const logResult = result => {
-  if (browser.extension.lastError) {
-    return console.error(browser.extension.lastError);
-  }
-  
-  return console.log(result);
-};
-
+//TODO: create single contextmenu item, save depending on context
+// priority = image -> link -> page
 browser.contextMenus.create(
   createMenuProperty(itemTypes.page),
   logResult
