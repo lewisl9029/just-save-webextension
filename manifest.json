@@ -6,7 +6,7 @@
  
   "description": "A simple WebExtension for skipping the \"Save As\" dialog when saving pages and images ",
   "icons": {
-    "48": "icons/just-save-48.png"
+    "48": "icons/just-save.svg"
   },
 
   "applications": {
