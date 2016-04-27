@@ -19,10 +19,10 @@ const menuProperty = {
     }
     
     const downloadOptions = {
-      url
-      //TODO: need to specify for non-image contexts to workaround firefox name bug
+      url,
       //TODO: document this bug and report on https://discourse.mozilla-community.org/c/add-ons/development
-      // filename: '' 
+      //need to specify for non-image contexts to workaround firefox name bug
+      filename: clickContext.srcUrl ? undefined : 'page.html'
       // url,
       // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
       // saveAs: false //not implemented yet in firefox, defaults to false
