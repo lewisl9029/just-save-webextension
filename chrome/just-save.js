@@ -12,24 +12,13 @@ const logResult = result => {
   return console.log(result);
 };
 
-const menuProperty = {
-  id: 'just-save',
-  title: 'Just Save',
-  contexts: ['all']
-};
-
 // ensure context menu item is only added when first installed
 // enables use of non-persistent event page for chrome (not supported in firefox)
 // https://developer.chrome.com/extensions/event_pages
 browser.runtime.onInstalled.addListener(event => {
-  // avoids duplicates by removing existing menu items first
+  // avoids duplicates on upgrade by removing existing menu items first
   browser.contextMenus.removeAll(result => {
     logResult(result);
-    
-    browser.contextMenus.create(
-      menuProperty,
-      logResult
-    );
     
     const handleMenuClick = clickContext => {
       if (clickContext.menuItemId !== 'just-save') {
@@ -57,6 +46,17 @@ browser.runtime.onInstalled.addListener(event => {
         logResult
       );
     };
+    
+    const menuProperties = {
+      id: 'just-save',
+      title: 'Just Save',
+      contexts: ['all']
+    };
+        
+    browser.contextMenus.create(
+      menuProperties,
+      logResult
+    );
     
     browser.contextMenus.onClicked.addListener(handleMenuClick);
   });

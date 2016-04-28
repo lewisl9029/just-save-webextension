@@ -8,20 +8,9 @@ const logResult = result => {
   return console.log(result);
 };
 
-const menuProperty = {
-  id: 'just-save',
-  title: 'Just Save',
-  contexts: ['all']
-};
-
-// avoids duplicates by removing existing menu items first
+// avoids duplicates on upgrade by removing existing menu items first
 browser.contextMenus.removeAll(result => {
   logResult(result);
-  
-  browser.contextMenus.create(
-    menuProperty,
-    logResult
-  );
   
   const handleMenuClick = clickContext => {
     if (clickContext.menuItemId !== 'just-save') {
@@ -54,5 +43,21 @@ browser.contextMenus.removeAll(result => {
     );
   };
   
-  browser.contextMenus.onClicked.addListener(handleMenuClick);
+  const menuProperties = {
+    id: 'just-save',
+    title: 'Just Save',
+    // contexts: ['all']
+    contexts: ['all'],
+    // workaround for onClick.addListener bug below
+    onclick: handleMenuClick
+  };
+    
+  browser.contextMenus.create(
+    menuProperties,
+    logResult
+  );
+  
+  // doesn't seem to work?
+  // TODO: report as a bug
+  // browser.contextMenus.onClicked.addListener(handleMenuClick);
 });
