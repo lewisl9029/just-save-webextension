@@ -1,4 +1,10 @@
 'use strict';
+// FIXME: need to keep this on a separate codebase due to
+// need for separate manifest file because persistent attribute is rejected
+// https://bugzilla.mozilla.org/show_bug.cgi?id=1253565
+// should be able to revert to single codebase when Firefox 48 is released
+
+// FIXME: figure out how to prevent toolbar icon from being added in chrome
 
 // adding browser shim for chrome support
 window.browser = chrome;
@@ -20,46 +26,44 @@ browser.runtime.onInstalled.addListener(event => {
   browser.contextMenus.removeAll(result => {
     logResult(result);
     
-    const handleMenuClick = clickContext => {
-      if (clickContext.menuItemId !== 'just-save') {
-        return;
-      }
-      
-      const url = clickContext.srcUrl || clickContext.linkUrl || clickContext.pageUrl; 
-      
-      if (!url) {
-        return console.error(`No url found for current click context`);
-      }
-      
-      const filename = undefined;
-      
-      const downloadOptions = {
-        url,
-        filename
-        // filename,
-        // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
-        // saveAs: false //not implemented yet in firefox, defaults to false
-      };
-      
-      browser.downloads.download(
-        downloadOptions, 
-        logResult
-      );
-    };
-    
     const menuProperties = {
       id: 'just-save',
       title: 'Just Save',
       contexts: ['all']
     };
-        
+    
     browser.contextMenus.create(
       menuProperties,
       logResult
     );
-    
-    // FIXME: appears to stop working after restarting chrome
-    // might need to add another listener for a different event
-    browser.contextMenus.onClicked.addListener(handleMenuClick);
   });
 });
+
+const handleMenuClick = clickContext => {
+  if (clickContext.menuItemId !== 'just-save') {
+    return;
+  }
+  
+  const url = clickContext.srcUrl || clickContext.linkUrl || clickContext.pageUrl; 
+  
+  if (!url) {
+    return console.error(`No url found for current click context`);
+  }
+  
+  const filename = undefined;
+  
+  const downloadOptions = {
+    url,
+    filename
+    // filename,
+    // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
+    // saveAs: false //not implemented yet in firefox, defaults to false
+  };
+  
+  browser.downloads.download(
+    downloadOptions, 
+    logResult
+  );
+};
+
+browser.contextMenus.onClicked.addListener(handleMenuClick);

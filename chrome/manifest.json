@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "Just Save",
-  "version": "0.0.1",
+  "version": "0.0.2",
   
   "description": "A simple WebExtension for skipping the \"Save As\" dialog when saving images, pages and links.",
   "icons": {
