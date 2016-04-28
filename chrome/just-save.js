@@ -58,6 +58,8 @@ browser.runtime.onInstalled.addListener(event => {
       logResult
     );
     
+    // FIXME: appears to stop working after restarting chrome
+    // might need to add another listener for a different event
     browser.contextMenus.onClicked.addListener(handleMenuClick);
   });
 });
