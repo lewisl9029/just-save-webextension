@@ -20,46 +20,44 @@ browser.runtime.onInstalled.addListener(event => {
   browser.contextMenus.removeAll(result => {
     logResult(result);
     
-    const handleMenuClick = clickContext => {
-      if (clickContext.menuItemId !== 'just-save') {
-        return;
-      }
-      
-      const url = clickContext.srcUrl || clickContext.linkUrl || clickContext.pageUrl; 
-      
-      if (!url) {
-        return console.error(`No url found for current click context`);
-      }
-      
-      const filename = undefined;
-      
-      const downloadOptions = {
-        url,
-        filename
-        // filename,
-        // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
-        // saveAs: false //not implemented yet in firefox, defaults to false
-      };
-      
-      browser.downloads.download(
-        downloadOptions, 
-        logResult
-      );
-    };
-    
     const menuProperties = {
       id: 'just-save',
       title: 'Just Save',
       contexts: ['all']
     };
-        
+    
     browser.contextMenus.create(
       menuProperties,
       logResult
     );
-    
-    // FIXME: appears to stop working after restarting chrome
-    // might need to add another listener for a different event
-    browser.contextMenus.onClicked.addListener(handleMenuClick);
   });
 });
+
+const handleMenuClick = clickContext => {
+  if (clickContext.menuItemId !== 'just-save') {
+    return;
+  }
+  
+  const url = clickContext.srcUrl || clickContext.linkUrl || clickContext.pageUrl; 
+  
+  if (!url) {
+    return console.error(`No url found for current click context`);
+  }
+  
+  const filename = undefined;
+  
+  const downloadOptions = {
+    url,
+    filename
+    // filename,
+    // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
+    // saveAs: false //not implemented yet in firefox, defaults to false
+  };
+  
+  browser.downloads.download(
+    downloadOptions, 
+    logResult
+  );
+};
+
+browser.contextMenus.onClicked.addListener(handleMenuClick);
