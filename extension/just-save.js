@@ -1,10 +1,4 @@
 'use strict';
-// FIXME: need to keep this on a separate codebase due to
-// need for separate manifest file because persistent attribute is rejected
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1253565
-// should be able to revert to single codebase when Firefox 48 is released
-
-// FIXME: figure out how to prevent toolbar icon from being added in chrome
 
 let isChrome = window.browser === undefined;
 
