@@ -7,21 +7,34 @@
 // FIXME: figure out how to prevent toolbar icon from being added in chrome
 
 // adding browser shim for chrome support
-window.browser = chrome;
-window.isChrome = true;
+if (window.browser === undefined) {
+  window.browser = chrome;
+  window.isChrome = true;  
+}
 
 const logResult = result => {
   if (browser.extension.lastError) {
-    return console.error(browser.extension.lastError);
+    return;
+    // debugging to console is not allowed for production extensions according to
+    // preliminary review for firefox: 
+    // Please note the following for the next update:
+    // 1) Your add-on prints debugging information to the Console, which is generally not allowed in production add-ons.
+
+    // return console.error(browser.extension.lastError);
   }
   
-  return console.log(result);
+  // return console.log(result);
 };
 
-// ensure context menu item is only added when first installed
-// enables use of non-persistent event page for chrome (not supported in firefox)
-// https://developer.chrome.com/extensions/event_pages
-browser.runtime.onInstalled.addListener(event => {
+
+const addOnInstalledListener = handleInstalled => isChrome ? 
+  // enables use of non-persistent event page for chrome (not supported in firefox)
+  // https://developer.chrome.com/extensions/event_pages
+  () => browser.runtime.onInstalled.addListener(handleInstalled) :
+  () => handleInstalled();
+  
+
+const createMenuItems = () => {
   // avoids duplicates on upgrade by removing existing menu items first
   browser.contextMenus.removeAll(result => {
     logResult(result);
@@ -37,9 +50,11 @@ browser.runtime.onInstalled.addListener(event => {
       logResult
     );
   });
-});
+};
 
-const handleMenuClick = clickContext => {
+addOnInstalledListener(createMenuItems);
+
+const downloadElement = clickContext => {
   if (clickContext.menuItemId !== 'just-save') {
     return;
   }
@@ -47,7 +62,8 @@ const handleMenuClick = clickContext => {
   const url = clickContext.srcUrl || clickContext.linkUrl || clickContext.pageUrl; 
   
   if (!url) {
-    return console.error(`No url found for current click context`);
+    // return console.error(`No url found for current click context`);
+    return;
   }
   
   const filename = undefined;
@@ -66,4 +82,4 @@ const handleMenuClick = clickContext => {
   );
 };
 
-browser.contextMenus.onClicked.addListener(handleMenuClick);
+browser.contextMenus.onClicked.addListener(downloadElement);
