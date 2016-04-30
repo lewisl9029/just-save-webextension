@@ -6,10 +6,11 @@
 
 // FIXME: figure out how to prevent toolbar icon from being added in chrome
 
+let isChrome = window.browser === undefined;
+
 // adding browser shim for chrome support
-if (window.browser === undefined) {
+if (isChrome) {
   window.browser = chrome;
-  window.isChrome = true;  
 }
 
 const logResult = result => {
@@ -27,33 +28,23 @@ const logResult = result => {
 };
 
 
-const addOnInstalledListener = handleInstalled => isChrome ? 
-  // enables use of non-persistent event page for chrome (not supported in firefox)
-  // https://developer.chrome.com/extensions/event_pages
-  () => browser.runtime.onInstalled.addListener(handleInstalled) :
-  () => handleInstalled();
+const addOnInstalledListener = handleInstalled => {
+  if (isChrome) {
+    // enables use of non-persistent event page for chrome (not supported in firefox)
+    // https://developer.chrome.com/extensions/event_pages
+    return browser.runtime.onInstalled.addListener(handleInstalled);
+  } 
   
-
-const createMenuItems = () => {
-  // avoids duplicates on upgrade by removing existing menu items first
-  browser.contextMenus.removeAll(result => {
-    logResult(result);
-    
-    const menuProperties = {
-      id: 'just-save',
-      title: 'Just Save',
-      contexts: ['all']
-    };
-    
-    browser.contextMenus.create(
-      menuProperties,
-      logResult
-    );
-  });
+  return handleInstalled();
 };
 
-addOnInstalledListener(createMenuItems);
-
+const addOnClickListener = handleClick => {
+  if (isChrome) {
+    // workaround for firefox contextMenus.onClicked.addListener bug
+    return browser.contextMenus.onClicked.addListener(handleClick);
+  }
+};
+  
 const downloadElement = clickContext => {
   if (clickContext.menuItemId !== 'just-save') {
     return;
@@ -66,14 +57,21 @@ const downloadElement = clickContext => {
     return;
   }
   
-  const filename = undefined;
+  // need to specify filename for non-image contexts to workaround firefox name bug
+  // TODO: document this bug and report on https://discourse.mozilla-community.org/c/add-ons/development
+  const filename = isChrome ? 
+    undefined :
+    clickContext.srcUrl ? 
+      undefined : 
+      // FIXME: not ideal for links to actual files, images, etc
+      clickContext.linkUrl ? 'link.htm' : 'page.htm';
   
   const downloadOptions = {
     url,
     filename
     // filename,
-    // conflictAction: 'prompt', //not implemented yet in firefox, defaults to uniquify
-    // saveAs: false //not implemented yet in firefox, defaults to false
+    // conflictAction: 'prompt', //not implemented yet in firefox 47, defaults to uniquify
+    // saveAs: false //not implemented yet in firefox 47, defaults to false
   };
   
   browser.downloads.download(
@@ -82,4 +80,29 @@ const downloadElement = clickContext => {
   );
 };
 
-browser.contextMenus.onClicked.addListener(downloadElement);
+const createMenuItems = () => {
+  // avoids duplicates on upgrade by removing existing menu items first
+  browser.contextMenus.removeAll(result => {
+    logResult(result);
+    
+    const menuProperties = {
+      id: 'just-save',
+      title: 'Just Save',
+      contexts: ['all'],
+      // workaround for firefox contextMenus.onClicked.addListener bug
+      onclick: isChrome ? undefined : downloadElement 
+    };
+    
+    browser.contextMenus.create(
+      menuProperties,
+      logResult
+    );
+  });
+};
+
+addOnInstalledListener(createMenuItems);
+addOnClickListener(downloadElement);
+
+// FIXME: doesn't seem to work?
+// TODO: report as a bug
+// browser.contextMenus.onClicked.addListener(downloadElement);
