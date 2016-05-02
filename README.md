@@ -8,4 +8,3 @@ Currently, Just Saved is available on both [Firefox](https://addons.mozilla.org/
 
 Just Save is built on top of the WebExtensions API, which means it can work across multiple browsers and will remain compatible with Firefox even after XUL-based addons become deprecated. 
 
-Just Save is completely free and open-source. Feel free to visit the [GitHub repo](https://github.com/lewisl9029/just-save-webextension) if you'd like to see the source code, report an issue, or contribute changes.
