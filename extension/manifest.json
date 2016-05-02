@@ -13,7 +13,7 @@
   "applications": {
     "gecko": {
       "id": "just-save@lewisl.webextension",
-      "strict_min_version": "45.0"
+      "strict_min_version": "47.0"
     }
   },
   
