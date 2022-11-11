@@ -1,6 +1,6 @@
 'use strict';
 
-let isChrome = window.browser === undefined;
+let isChrome = self.browser === undefined;
 
 // Detect if running as an event page in Firefox.
 const detectFirefoxEventPageMode = () => {
@@ -19,7 +19,7 @@ const detectFirefoxEventPageMode = () => {
 
 // adding browser shim for chrome support
 if (isChrome) {
-  window.browser = chrome;
+  self.browser = chrome;
 } else {
   detectFirefoxEventPageMode()
 }
