@@ -2,9 +2,26 @@
 
 let isChrome = window.browser === undefined;
 
+// Detect if running as an event page in Firefox.
+const detectFirefoxEventPageMode = () => {
+  if (isChrome) { return; }
+  try {
+    browser.contextMenus.create({ id: "test-menu", onclick: () => {} });
+  } catch (err) {
+    if (err?.message.includes("Property \"onclick\" cannot be used in menus.create")) {
+      // Set isChrome to true if Firefox is detected to be running with event pages support enabled.
+      isChrome = true;
+    }
+  } finally {
+    browser.contextMenus.remove("test-menu");
+  }
+}
+
 // adding browser shim for chrome support
 if (isChrome) {
   window.browser = chrome;
+} else {
+  detectFirefoxEventPageMode()
 }
 
 const logResult = result => {
