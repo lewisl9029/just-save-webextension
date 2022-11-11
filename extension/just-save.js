@@ -25,14 +25,14 @@ if (isChrome) {
 }
 
 const logResult = result => {
-  if (browser.extension.lastError) {
+  if (browser.runtime.lastError) {
     return;
     // debugging to console is not allowed for production extensions according to
     // preliminary review for firefox: 
     // Please note the following for the next update:
     // 1) Your add-on prints debugging information to the Console, which is generally not allowed in production add-ons.
 
-    // return console.error(browser.extension.lastError);
+    // return console.error(browser.runtime.lastError);
   }
   
   // return console.log(result);
