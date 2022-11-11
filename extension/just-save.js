@@ -1,21 +1,38 @@
 'use strict';
 
-let isChrome = window.browser === undefined;
+let isChrome = self.browser === undefined;
+
+// Detect if running as an event page in Firefox.
+const detectFirefoxEventPageMode = () => {
+  if (isChrome) { return; }
+  try {
+    browser.contextMenus.create({ id: "test-menu", onclick: () => {} });
+  } catch (err) {
+    if (err?.message.includes("Property \"onclick\" cannot be used in menus.create")) {
+      // Set isChrome to true if Firefox is detected to be running with event pages support enabled.
+      isChrome = true;
+    }
+  } finally {
+    browser.contextMenus.remove("test-menu");
+  }
+}
 
 // adding browser shim for chrome support
 if (isChrome) {
-  window.browser = chrome;
+  self.browser = chrome;
+} else {
+  detectFirefoxEventPageMode()
 }
 
 const logResult = result => {
-  if (browser.extension.lastError) {
+  if (browser.runtime.lastError) {
     return;
     // debugging to console is not allowed for production extensions according to
     // preliminary review for firefox: 
     // Please note the following for the next update:
     // 1) Your add-on prints debugging information to the Console, which is generally not allowed in production add-ons.
 
-    // return console.error(browser.extension.lastError);
+    // return console.error(browser.runtime.lastError);
   }
   
   // return console.log(result);
